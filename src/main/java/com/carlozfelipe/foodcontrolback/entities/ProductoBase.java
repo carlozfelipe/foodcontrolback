@@ -1,7 +1,5 @@
 package com.carlozfelipe.foodcontrolback.entities;
 
-import com.carlozfelipe.foodcontrolback.enums.ProductoBaseEnum;
-import com.carlozfelipe.foodcontrolback.enums.TamanioProductoBaseEnum;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -18,13 +16,13 @@ public class ProductoBase {
     @GeneratedValue
     private Long id;
 
-    private ProductoBaseEnum tipo;
+    private TipoProductoBase tipo;
 
     private String nombre;
 
     private Integer valor;
 
-    private TamanioProductoBaseEnum tamanio;
+    private String tamanio;
 
     private boolean inactivo;
 

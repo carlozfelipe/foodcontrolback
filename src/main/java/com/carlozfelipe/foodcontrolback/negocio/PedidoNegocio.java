@@ -39,6 +39,8 @@ public class PedidoNegocio {
     private DireccionDao direccionDao;
     @Autowired
     private FidelizacionDao fidelizacionDao;
+    @Autowired
+    private ProductoBaseProductoDao productoBaseProductoDao;
 
     public void crear(Pedido pedido) {
         Date fechaPedido = new Date();
@@ -83,8 +85,6 @@ public class PedidoNegocio {
         pedido.setFechaTimeStamp((fechaPedido).getTime());
         pedido = pedidoDao.save(pedido);
         for (Producto producto : pedido.getProductos()) {
-            ProductoBase productoBase = productoBaseDao.findById(producto.getProductoBase().getId()).orElse(null);
-            producto.setProductoBase(productoBase);
             producto = productoDao.save(producto);
             for (Adicion adicion : producto.getAdiciones()) {
                 Adicion adicionNueva = adicionDao.findById(adicion.getId()).get();
@@ -100,6 +100,14 @@ public class PedidoNegocio {
                 reduccionProducto.setProducto(producto);
                 reduccionProductoDao.save(reduccionProducto);
             }
+            for(ProductoBase productoBase : producto.getProductoBase()){
+                ProductoBase productoBaseNuevo = productoBaseDao.findById(productoBase.getId()).get();
+                ProductoBaseProducto productoBaseProducto = new ProductoBaseProducto();
+                productoBaseProducto.setProductoBase(productoBaseNuevo);
+                productoBaseProducto.setProducto(producto);
+                productoBaseProductoDao.save(productoBaseProducto);
+            }
+
             DetallePedido detallePedido = new DetallePedido();
             detallePedido.setPedido(pedido);
             detallePedido.setProducto(producto);
@@ -111,10 +119,6 @@ public class PedidoNegocio {
 
     private void validarPedido(Pedido pedido) {
         for (Producto producto : pedido.getProductos()) {
-            ProductoBase productoBase = productoBaseDao.findById(producto.getProductoBase().getId()).orElse(null);
-            if (productoBase == null) {
-                throw new IllegalArgumentException("no existe producto base " + producto.getProductoBase().getNombre());
-            }
             for (Adicion adicion : producto.getAdiciones()) {
                 if (!adicionDao.findById(adicion.getId()).isPresent()) {
                     throw new IllegalArgumentException("No existe adición ");
@@ -123,6 +127,11 @@ public class PedidoNegocio {
             for (Reduccion reduccion : producto.getReducciones()) {
                 if (!reduccionDao.findById(reduccion.getId()).isPresent()) {
                     throw new IllegalArgumentException("No existe reducción ");
+                }
+            }
+            for( ProductoBase productoBase : producto.getProductoBase()){
+                if(!productoBaseDao.findById(productoBase.getId()).isPresent()){
+                    throw new IllegalArgumentException("No existe producto base ");
                 }
             }
         }
@@ -332,8 +341,6 @@ public class PedidoNegocio {
         if(pedidoModificar!=null){
             modificarValorFidelidad(pedidoModificar.getUsuario(), pedidoModificar.getValor(), pedidoModificar.getValor()+producto.getValor());
             pedidoModificar.setValor(pedidoModificar.getValor()+producto.getValor());
-            ProductoBase productoBase = productoBaseDao.findById(producto.getProductoBase().getId()).orElse(null);
-            producto.setProductoBase(productoBase);
             producto = productoDao.save(producto);
             for (Adicion adicion : producto.getAdiciones()) {
                 Adicion adicionNueva = adicionDao.findById(adicion.getId()).get();
@@ -348,6 +355,13 @@ public class PedidoNegocio {
                 reduccionProducto.setReduccion(reduccionNueva);
                 reduccionProducto.setProducto(producto);
                 reduccionProductoDao.save(reduccionProducto);
+            }
+            for(ProductoBase productoBase : producto.getProductoBase()){
+                ProductoBase productoBaseNuevo = productoBaseDao.findById(productoBase.getId()).get();
+                ProductoBaseProducto productoBaseProducto = new ProductoBaseProducto();
+                productoBaseProducto.setProductoBase(productoBaseNuevo);
+                productoBaseProducto.setProducto(producto);
+                productoBaseProductoDao.save(productoBaseProducto);
             }
             DetallePedido detallePedido = new DetallePedido();
             detallePedido.setPedido(pedidoModificar);

@@ -5,20 +5,18 @@ import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Transient;
-import java.util.List;
+import javax.persistence.Lob;
 
 @Entity
 @Data
-public class TipoProductoBase {
+public class Estilo {
     @Id
     @GeneratedValue
     private Long id;
+    private String colorPrimario;
+    private String colorSecundario;
     private String nombre;
-    private String tamanios;
-    @Transient
-    private List<String> listaTamanios;
-    private String proporcion;
-    @Transient
-    private List<String> listaPropociones;
+    private String tipoBoton;
+    @Lob
+    private byte[] logo;
 }
